@@ -1,0 +1,45 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- 敏感信息 ----------
+.env
+.env.*
+!.env.example
+
+# ---------- 运行时产物 ----------
+logs/
+*.log
+Common/logs/
+RAG/logs/
+
+# ---------- 本地数据 / 向量库 / 索引 ----------
+data/
+RAG/data/
+*.sqlite3
+*.sqlite3-*
+chroma_db/
+md5.txt
+
+# ---------- 工作区（Agent / MCP 可写目录）----------
+Agent/mcp_tools/workspace/
+Port/workspace/
+Port/mcp_tools/
+workspace/
+
+# ---------- 本地模型权重----------
+models/
+
+# ---------- 编辑器 / 系统 ----------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

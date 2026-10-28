@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.bin binary
+*.sqlite3 binary
+*.pt binary
+*.onnx binary
+
+*.sh text eol=lf

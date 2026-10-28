@@ -1,0 +1,26 @@
+# ==========================================================
+# Agent 主配置
+# 值可以写成 ${环境变量:-默认值}，真实口令请放在 .env / 系统环境变量中
+# 参考 .env.example
+# ==========================================================
+
+# ---- LLM ----
+chat_model_name: ${CHAT_MODEL_NAME:-deepseek-chat}
+temperature: ${LLM_TEMPERATURE:-0.1}
+
+# ---- MySQL（设备库）----
+mysql_host: ${MYSQL_HOST:-127.0.0.1}
+mysql_port: ${MYSQL_PORT:-3306}
+user: ${MYSQL_USER:-root}
+password: ${MYSQL_PASSWORD:-}
+database: ${MYSQL_DATABASE:-mysql_database}
+connect_timeout: ${MYSQL_CONNECT_TIMEOUT:-5}
+
+# ---- Redis（LangGraph checkpointer 持久化会话）----
+redis_host: ${REDIS_HOST:-127.0.0.1}
+redis_port: ${REDIS_PORT:-6379}
+redis_db: ${REDIS_DB:-0}
+redis_password: ${REDIS_PASSWORD:-}
+
+# ---- 图执行 ----
+recursion_limit: ${RECURSION_LIMIT:-15}

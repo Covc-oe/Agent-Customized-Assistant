@@ -1,0 +1,114 @@
+# ============================================================
+# 一键起服务（不含模型权重）
+#   cp .env.example .env && 编辑 .env
+#   docker compose up -d --build
+#
+# 本地模型两种用法：
+#   1) 用宿主机已装好的 Ollama（默认）：先在本机 ollama serve 并拉好模型
+#        OLLAMA_BASE_URL=http://host.docker.internal:11434
+#   2) 用容器内 Ollama（首次会下载约 2.5GB 模型）：
+#        docker compose --profile ollama up -d
+#        docker compose exec ollama ollama pull qwen3-embedding:4b
+# ============================================================
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-change_me}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mysql_database}
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./deploy/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_PASSWORD:-change_me}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    # 注意：langgraph-checkpoint-redis 需要 RediSearch/RedisJSON（FT.CREATE），
+    # Redis 8 已内置这两个模块；若用 Redis 7 请换成 redis/redis-stack-server
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama"]
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./models/ollama:/root/.ollama
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # 容器内服务发现：覆盖 .env 里的 127.0.0.1
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # 默认连宿主机 Ollama；改成 http://ollama:11434 可切到容器内模型
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      RERANKER_PATH: /app/models/bge-reranker-v2-m3
+      AGENT_WORKSPACE_DIR: /app/Agent/mcp_tools/workspace
+      LOG_DIR: /app/logs
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # 模型权重只读挂载（不进镜像、不进 git）
+      - ./models:/app/models:ro
+      # 向量库 / 知识库数据持久化
+      - ./data:/app/data
+      # Agent 可写工作区（演示 read_file / write_file 工具）
+      - ./Agent/mcp_tools/workspace:/app/Agent/mcp_tools/workspace
+      - ./logs:/app/logs
+
+  frontend:
+    build: .
+    restart: unless-stopped
+    command:
+      - streamlit
+      - run
+      - Frontend/ui_cli.py
+      - --server.address=0.0.0.0
+      - --server.port=8501
+      - --server.headless=true
+    environment:
+      BACKEND_BASE_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  redis_data:

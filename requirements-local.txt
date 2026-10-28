@@ -1,0 +1,10 @@
+# ============================================================
+# 本地模型相关依赖（体积大，仅在需要 CrossEncoder 精排时安装）
+#
+# CPU 环境建议先装 CPU 版 torch，避免拉入 CUDA 依赖（镜像/环境省 ~2GB）：
+#   pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
+#   pip install -r requirements-local.txt
+# ============================================================
+
+torch==2.14.0
+transformers==5.17.0

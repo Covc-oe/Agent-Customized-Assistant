@@ -1,0 +1,28 @@
+.git
+.gitignore
+.venv
+__pycache__
+*.py[cod]
+*.log
+logs/
+
+# 本地数据与模型权重不进入构建上下文（应通过 volume 挂载）
+data/
+RAG/data/
+models/
+*.sqlite3
+
+# 工作区产物
+Agent/mcp_tools/workspace/
+Port/workspace/
+
+# 本地环境文件
+.env
+.env.*
+
+# 文档与测试（镜像内不需要）
+README.md
+MIGRATION.md
+docs/
+tests/
+*.md
