@@ -7,11 +7,14 @@ from typing import List
 
 from langchain_core.tools import BaseTool
 
+from Common.utils.path_tools import get_abs_path
+
 _AGENT_DIR = Path(__file__).resolve().parent
 _MCP_SERVER_SCRIPT = _AGENT_DIR / "mcp_tools" / "file_mcp_server.py"
+# 与 Agent/agent.py 完全相同的解析规则：相对路径一律相对项目根，与 cwd 无关
 _WORKSPACE_ABS = Path(
-    os.environ.get("AGENT_WORKSPACE_DIR") or (_AGENT_DIR / "mcp_tools" / "workspace")
-).resolve()
+    get_abs_path(os.environ.get("AGENT_WORKSPACE_DIR") or "Agent/mcp_tools/workspace")
+)
 
 _ENV = {
     **os.environ,

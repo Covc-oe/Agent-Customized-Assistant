@@ -75,10 +75,25 @@ def _expand_env(value: Any) -> Any:
     return expanded
 
 
+def _is_path_key(key: str) -> bool:
+    """判断某个配置项是不是路径。
+
+    除显式白名单外，``*_path`` / ``*_dir`` / ``*_directory`` 结尾的键也按路径处理，
+    避免以后新增路径配置时忘记登记、又退回成相对路径。
+    """
+    return (
+        key in _PATH_KEYS
+        or key.endswith("_path")
+        or key.endswith("_dir")
+        or key.endswith("_directory")
+        or key == "directory"
+    )
+
+
 def _normalize_paths(config: dict) -> dict:
     """把路径类配置项转换为基于项目根目录的绝对路径。"""
     for key, value in config.items():
-        if key in _PATH_KEYS and isinstance(value, str) and value:
+        if _is_path_key(key) and isinstance(value, str) and value:
             config[key] = get_abs_path(os.path.expanduser(value))
     return config
 

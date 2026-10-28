@@ -4,9 +4,23 @@ from typing import Annotated
 from pydantic import Field
 from fastmcp import FastMCP
 
-WORKSPACE_DIR = Path(
-    os.environ.get("AGENT_WORKSPACE_DIR") or (Path(__file__).resolve().parent / "workspace")
-).resolve()
+# 本文件是独立子进程，刻意不依赖 Common 包，但路径解析规则必须与 Agent 侧一致
+_REPO_ROOT = Path(__file__).resolve().parents[2]          # <root>/Agent/mcp_tools/file_mcp_server.py
+_DEFAULT_WORKSPACE = _REPO_ROOT / "Agent" / "mcp_tools" / "workspace"
+
+
+def _resolve_workspace_dir() -> Path:
+    """相对路径一律相对项目根解析，不依赖当前工作目录。"""
+    raw = os.environ.get("AGENT_WORKSPACE_DIR")
+    if not raw:
+        return _DEFAULT_WORKSPACE
+    path = Path(os.path.expanduser(raw))
+    if path.is_absolute() or path.drive:
+        return path
+    return _REPO_ROOT / path
+
+
+WORKSPACE_DIR = _resolve_workspace_dir().resolve()
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
 
