@@ -104,7 +104,7 @@ python -m pytest tests -s -q   # MCP 工具链路联通性
 
 ```mermaid
 flowchart LR
-    subgraph BIZ["业务层（换业务只动这里）"]
+    subgraph BIZ["业务层"]
         KB["知识库文档<br/>data/knowledge"]
         DB[("业务库<br/>MySQL")]
         WS["Agent 工作区<br/>读写沙箱"]
@@ -112,7 +112,7 @@ flowchart LR
         TL["工具集合<br/>local_tools + MCP"]
     end
 
-    subgraph FW["骨架层（与业务无关）"]
+    subgraph FW["骨架层"]
         FE["Streamlit 界面"] -->|SSE| API["FastAPI"]
         API --> G{{"LangGraph 状态机"}}
         G -->|"LLM 决策"| LLM["LLM 适配层<br/>模型 / 网关可换"]
