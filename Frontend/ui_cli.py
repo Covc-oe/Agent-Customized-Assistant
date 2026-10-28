@@ -48,7 +48,7 @@ with st.sidebar:
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "你好！我是基于内部定制的agent智能体，请问有什么可以帮您？"}
+        {"role": "assistant", "content": "你好！我是部署在企业内部的可定制化 AI 助手，可以问我设备状态、保修期或故障排查。"}
     ]
 
 for msg in st.session_state.messages:
@@ -106,7 +106,7 @@ elif user_input := st.chat_input("请输入您的问题或设备 SN 码..."):
                                     response_placeholder.markdown(full_response + "▌")
                                 elif data_type == "interrupt":
                                     st.session_state.awaiting_confirmation = True
-                                    st.rerun()  # 触发重绘以显示确认按钮
+                                    st.rerun()
                                 elif data_type == "error":
                                     st.error(f"调用出错: {content}")
                                     break

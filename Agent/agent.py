@@ -120,12 +120,6 @@ knowledge_base_search = StructuredTool.from_function(
 )
 
 
-
-"""任务:添加通用读取文件工具"""
-
-
-
-
 @tool(description=
       "根据设备序列号（SN 码）查询单台设备的型号、激活日期、保修截止日期、"
       "运行状态和电池健康度。"
@@ -517,7 +511,7 @@ async def Node_model(state: AgentState) -> dict:
         return {
             "messages": [
                 AIMessage(
-                    content="我是基于内部数据库训练后的私人 AI 助手，能基于内部数据回答您的问题！"
+                    content="我是部署在企业内部的可定制化 AI 助手，基于内部知识库与业务数据库作答。可以问我设备状态、保修期或故障排查。"
                 )
             ]
         }
@@ -646,11 +640,4 @@ async  def run_agent(user_input: str, thread_id: str = "user_session_001") -> st
         config=config,
     )
     return result["messages"][-1].content
-
-
-if __name__ == "__main__":
-    async def _demo():
-        print(await run_agent("请读取 workspace 下 test.txt 的内容", thread_id="demo_1"))
-        print(await run_agent("读取 out.txt", thread_id="demo_2"))
-    asyncio.run(_demo())
 
